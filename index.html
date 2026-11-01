@@ -538,7 +538,12 @@ footer .slogan{font-family:var(--display);font-style:italic;font-weight:700;font
     btn.disabled=true;lbl.textContent=tr("sending");
     var payload={name:v("r-name"),phone:v("r-phone"),country:v("r-country"),vehicle:VEH_AR[document.getElementById("r-veh").selectedIndex],licence:v("r-lic"),experience:v("r-exp"),notes:v("r-notes"),lang:cur.toUpperCase(),website:""};
     var done=function(ok){btn.disabled=false;lbl.textContent=tr("submit");if(ok)showSent();else document.getElementById("r-err3").hidden=false};
-    if(!/^https:\/\/script\.google\.com\//.test(SHEET_URL)){done(false);return}
+    if(!/^https:\/\/script\.google\.com\//.test(SHEET_URL)){
+      // الجدول غير مربوط بعد: الزر يفتح واتساب مع الطلب مكتوب جاهز
+      btn.disabled=false;lbl.textContent=tr("submit");build();
+      var wa=document.createElement("a");wa.href=document.getElementById("r-wa").href;wa.target="_blank";wa.rel="noopener";document.body.appendChild(wa);wa.click();wa.remove();
+      showOk("ok_wa");return;
+    }
     fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)}).then(function(){done(true)},function(){done(false)});
   });
   function showSent(){
@@ -574,7 +579,7 @@ footer .slogan{font-family:var(--display);font-style:italic;font-weight:700;font
   var w=document.getElementById("welcome"),seen=false;
   try{seen=sessionStorage.getItem("bft-welcome")==="1"}catch(e){}
   function closeW(){w.hidden=true;try{sessionStorage.setItem("bft-welcome","1")}catch(e){}}
-  if(!seen){w.hidden=false;setTimeout(function(){document.getElementById("w-go").focus()},50)}
+  if(!seen){w.hidden=false}
   document.getElementById("w-go").addEventListener("click",closeW);
   w.addEventListener("click",function(e){if(e.target===w)closeW()});
   w.querySelectorAll("[data-close]").forEach(function(a){a.addEventListener("click",closeW)});
